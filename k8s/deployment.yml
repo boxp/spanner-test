@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: spanner-test
+spec:
+  replicas: 10
+  template:
+    metadata:
+      labels:
+        app: spanner-test
+    spec:
+      containers:
+      - name: spanner-test
+        image: asia.gcr.io/boxp-tk/spanner-test:23
+        env:
+          - name: SPANNER_TEST_PROJECT_ID
+            valueFrom:
+              secretKeyRef:
+                name: spanner-test
+                key: project-id
+          - name: SPANNER_TEST_INSTANCE_ID
+            valueFrom:
+              secretKeyRef:
+                name: spanner-test
+                key: instance-id
+          - name: SPANNER_TEST_DATABASE_ID
+            valueFrom:
+              secretKeyRef:
+                name: spanner-test
+                key: database-id
