@@ -5,27 +5,33 @@
 
 (def interval 10)
 
-(defrecord ExampleWorkerComponent [user-repository chancel-chan]
+(defn worker
+  [this cancel-chan]
+  (go
+    (let [t (timeout interval)]
+      (loop [in :timeout]
+             (when (not= :cancel in)
+               (-> this :user-repository example)
+               (-> this :user-repository (add-user (dummy-user)))
+               (recur (alt! cancel-chan (fn [res] res)
+                            ;;t :timeout
+                            )))))))
+
+(defrecord ExampleWorkerComponent [user-repository cancel-chans]
   component/Lifecycle
   (start [this]
-    (println ";; Starting ExampleWorkerComponent")
-    (go
-      (let [chancel-chan (chan)
-            t (timeout interval)]
-        (loop [in :timeout]
-               (when (not= :cancel in)
-                 (-> this :user-repository example)
-                 (-> this :user-repository (add-user (dummy-user)))
-                 (recur (alt! chancel-chan (fn [res] res)
-                              ;;t :timeout
-                              ))))))
-    (-> this
-        (assoc :chancel-chan chancel-chan)))
+    (let [cancel-chans (->> (repeatedly #(chan)) (take 10))]
+      (println ";; Starting ExampleWorkerComponent")
+      (doseq [c cancel-chans]
+        (worker this c))
+      (-> this
+          (assoc :cancel-chans cancel-chans))))
   (stop [this]
     (println ";; Stopping ExampleWorkerComponent")
-    (put! (:chancel-chan this) :cancel)
+    (doseq [c (:cancel-chans this)]
+      (put! c :cancel))
     (-> this
-        (dissoc :chan)
+        (dissoc :cancel-chans)
         (dissoc :user-repository))))
 
 (defn example-worker-component []
