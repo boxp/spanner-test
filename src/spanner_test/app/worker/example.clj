@@ -12,7 +12,9 @@
       (loop [in :timeout]
              (when (not= :cancel in)
                (-> this :user-repository example)
-               (-> this :user-repository (add-user (dummy-user)))
+               (try
+                 (-> this :user-repository (add-user (dummy-user)))
+                 (catch Exception e (println e)))
                (recur (alt! cancel-chan (fn [res] res)
                             ;;t :timeout
                             )))))))
