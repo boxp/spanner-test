@@ -4,6 +4,7 @@
             [spanner-test.infra.repository.user :refer [example dummy-user add-user]]))
 
 (def interval 10)
+(def worker-count 10)
 
 (defn worker
   [this cancel-chan]
@@ -16,13 +17,13 @@
                  (-> this :user-repository (add-user (dummy-user)))
                  (catch Exception e (println e)))
                (recur (alt! cancel-chan (fn [res] res)
-                            ;;t :timeout
+                            t :timeout
                             )))))))
 
 (defrecord ExampleWorkerComponent [user-repository cancel-chans]
   component/Lifecycle
   (start [this]
-    (let [cancel-chans (->> (repeatedly #(chan)) (take 10))]
+    (let [cancel-chans (->> (repeatedly #(chan)) (take worker-count))]
       (println ";; Starting ExampleWorkerComponent")
       (doseq [c cancel-chans]
         (worker this c))
