@@ -17,7 +17,8 @@
                  (-> this :user-repository example)
                  (-> this :user-repository (add-user (dummy-user)))
                  (recur (alt! chancel-chan (fn [res] res)
-                              t :timeout))))))
+                              ;;t :timeout
+                              ))))))
     (-> this
         (assoc :chancel-chan chancel-chan)))
   (stop [this]

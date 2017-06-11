@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
       - name: spanner-test
-        image: asia.gcr.io/boxp-tk/spanner-test:23
+        image: asia.gcr.io/boxp-tk/spanner-test:${CIRCLE_SHA1}
         env:
           - name: SPANNER_TEST_PROJECT_ID
             valueFrom:

@@ -35,7 +35,7 @@
   (try
     (let [session (-> spanner :dbcli .singleUse)]
       (-> session
-          (.executeQuery (Statement/of "SELECT 1")
+          (.executeQuery (Statement/of "SELECT * FROM user")
                          (into-array Options$QueryOption [])))
       (.close session))
       (catch Exception e
