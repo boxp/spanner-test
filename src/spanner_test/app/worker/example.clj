@@ -4,7 +4,7 @@
             [spanner-test.infra.repository.user :refer [example dummy-user add-user]]))
 
 (def interval 10)
-(def worker-count 10)
+(def worker-count 20)
 
 (defn worker
   [this cancel-chan]
