@@ -12,13 +12,13 @@
 (defrecord User [id name nickname])
 
 (defn dummy-user []
-  (map->User {:id (rand-int Integer/MAX_VALUE)
-              :name (gensym)
-              :nickname (gensym)}))
+  (map->User {:id (-> (rand-int Integer/MAX_VALUE) long)
+              :name (str (gensym))
+              :nickname (str (gensym))}))
 
 (defn add-user
   [{:keys [spanner] :as comp} user]
-  (let [mutation (doto (Mutation/newInsertBuilder table-name)
+  (let [mutation (-> (Mutation/newInsertBuilder table-name)
                    (.set "id")
                    (.to (:id user))
                    (.set "name")
@@ -28,7 +28,7 @@
                    (.build))]
         (-> spanner
             :dbcli
-            (.write (-> (into-array Mutation [mutation]) .asList)))))
+            (.write [mutation]))))
 
 (defn example
   [{:keys [spanner] :as comp}]
@@ -36,8 +36,7 @@
     (let [session (-> spanner :dbcli .singleUse)]
       (-> session
           (.executeQuery (Statement/of "SELECT 1")
-                         (into-array Options$QueryOption []))
-          println)
+                         (into-array Options$QueryOption [])))
       (.close session))
       (catch Exception e
       (println "Error!: " e))))

@@ -15,7 +15,7 @@
         (loop [in :timeout]
                (when (not= :cancel in)
                  (-> this :user-repository example)
-                 ;; (-> this :user-repository (add-user (dummy-user)))
+                 (-> this :user-repository (add-user (dummy-user)))
                  (recur (alt! chancel-chan (fn [res] res)
                               t :timeout))))))
     (-> this
